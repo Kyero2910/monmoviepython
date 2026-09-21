@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{{ film.title }} - Movie Finder</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+</head>
+
+<body>
+
+    <header>
+
+        <div class="header-content">
+
+            <a href="{{ url_for('accueil') }}" class="logo">
+                🎬 MOVIE FINDER
+            </a>
+
+            <nav>
+
+                <a href="{{ url_for('accueil') }}">
+                    Accueil
+                </a>
+
+                <a href="{{ url_for('accueil') }}#films">
+                    Films
+                </a>
+
+            </nav>
+
+        </div>
+
+    </header>
+
+
+    <main>
+
+        <section class="details-section">
+
+            <a
+                href="{{ url_for('accueil') }}"
+                class="back-button"
+            >
+                ← Retour aux films
+            </a>
+
+
+            <div class="movie-details-card">
+
+                <div class="details-top">
+
+                    {% if film.poster_path %}
+
+                        <img
+                            src="{{ image_url }}{{ film.poster_path }}"
+                            alt="Affiche de {{ film.title }}"
+                            class="details-image"
+                        >
+
+                    {% endif %}
+
+
+                    <div class="details-info">
+
+                        <h2>
+                            {{ film.title }}
+                        </h2>
+
+
+                        <div class="details-meta">
+
+                            {% if film.release_date %}
+
+                                <span class="meta-item">
+                                    📅 {{ film.release_date[:4] }}
+                                </span>
+
+                            {% endif %}
+
+
+                            <span class="meta-item meta-rating">
+                                ⭐ {{ "%.1f"|format(film.vote_average) }}/10
+                            </span>
+
+
+                            {% if film.runtime %}
+
+                                <span class="meta-item">
+                                    ⏱️ {{ film.runtime }} min
+                                </span>
+
+                            {% endif %}
+
+
+                            {% if film.genres %}
+
+                                {% for genre in film.genres %}
+
+                                    <span class="meta-item">
+                                        🎭 {{ genre.name }}
+                                    </span>
+
+                                {% endfor %}
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <div class="details-description">
+
+                            <h3>
+                                Résumé
+                            </h3>
+
+                            <p>
+                                {{ film.overview or "Aucun résumé disponible." }}
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <footer>
+
+        <p>
+            Movie Finder — Projet de développement web
+        </p>
+
+    </footer>
+
+</body>
+
+</html>

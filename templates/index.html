@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Movie Finder</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+</head>
+
+<body>
+
+    <header>
+
+        <div class="header-content">
+
+            <a href="#accueil" class="logo">
+                🎬 MOVIE FINDER
+            </a>
+
+            <nav>
+
+                <a href="#accueil">
+                    Accueil
+                </a>
+
+                <a href="#films">
+                    Films
+                </a>
+
+            </nav>
+
+        </div>
+
+    </header>
+
+
+    <main>
+
+
+        <!-- ========================= -->
+        <!-- ACCUEIL -->
+        <!-- ========================= -->
+
+        <section id="accueil" class="hero">
+
+            <p class="subtitle">
+                MOVIE
+            </p>
+
+            <h1>
+                Trouve ton prochain film
+            </h1>
+
+            <p class="description">
+                Recherche un film et découvre toutes ses informations.
+            </p>
+
+
+			<form
+				class="search-container"
+				action="{{ url_for('recherche') }}"
+				method="GET"
+			>
+
+				<div class="search-box">
+
+					<input
+						type="text"
+						name="q"
+						placeholder="Rechercher un film..."
+						autocomplete="off"
+					>
+
+					<div id="suggestions"></div>
+
+				</div>
+
+
+				<button type="submit">
+					🔍 Rechercher
+				</button>
+
+			</form>
+
+
+			<p id="error">
+
+				{% if erreur %}
+					{{ erreur }}
+				{% endif %}
+			</p>
+
+
+        </section>
+
+
+
+        <!-- ========================= -->
+        <!-- FILMS -->
+        <!-- ========================= -->
+
+        <section id="films" class="movies-section">
+
+            <div class="section-title">
+
+                <h2>
+                    Films
+                </h2>
+
+                <p>
+                    Découvre une sélection de films
+                </p>
+
+            </div>
+
+
+            <div id="moviesGrid" class="movies-grid">
+
+
+			{% for film in films %}
+
+				{% if film.poster_path %}
+
+					<a
+						href="{{ url_for('details_film', film_id=film.id) }}"
+						class="movie-card"
+					>
+
+						<img
+							src="{{ image_url }}{{ film.poster_path }}"
+							alt="{{ film.title }}"
+						>
+
+						<div class="movie-card-content">
+
+							<div class="movie-title">
+								{{ film.title }}
+							</div>
+
+							<div class="movie-info">
+
+								<span>
+									{% if film.release_date %}
+										{{ film.release_date[:4] }}
+									{% else %}
+										N/A
+									{% endif %}
+								</span>
+
+								<span class="movie-rating">
+									⭐
+
+									{% if film.vote_average %}
+										{{ "%.1f"|format(film.vote_average) }}
+									{% else %}
+										N/A
+									{% endif %}
+								</span>
+
+							</div>
+
+						</div>
+
+					</a>
+
+				{% endif %}
+
+			{% endfor %}
+
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ========================= -->
+        <!-- DETAILS -->
+        <!-- ========================= -->
+
+        <section id="details" class="details-section">
+
+            <button id="backButton" class="back-button">
+
+                ← Retour aux films
+
+            </button>
+
+
+            <div id="movieDetails">
+
+            </div>
+
+        </section>
+
+
+    </main>
+
+
+
+    <!-- ========================= -->
+    <!-- FOOTER -->
+    <!-- ========================= -->
+
+    <footer>
+
+        <p>
+            Movie Finder — Projet de développement web
+        </p>
+
+    </footer>
+
+			<script>
+			const searchInput = document.querySelector('input[name="q"]');
+			const suggestions = document.getElementById("suggestions");
+
+			searchInput.addEventListener("input", async function () {
+				const recherche = searchInput.value.trim();
+
+				if (recherche.length < 2) {
+					suggestions.innerHTML = "";
+					return;
+				}
+
+				const response = await fetch(
+					`/suggestions?q=${encodeURIComponent(recherche)}`
+				);
+
+				const films = await response.json();
+
+				suggestions.innerHTML = "";
+
+				films.forEach(film => {
+					const element = document.createElement("div");
+
+					element.className = "suggestion";
+
+					const annee = film.release_date
+						? film.release_date.substring(0, 4)
+						: "Date inconnue";
+
+					element.innerHTML = `
+						<strong>${film.title}</strong>
+						<span>${annee} ⭐ ${film.vote_average.toFixed(1)}</span>
+					`;
+
+					element.addEventListener("click", function () {
+						window.location.href = `/film/${film.id}`;
+					});
+
+					suggestions.appendChild(element);
+				});
+			});
+			</script>
+</body>
+
+</html>
+
